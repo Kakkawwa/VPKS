@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:padding="16dp">
+
+    <!-- Заголовочная область: вкладки и кнопки -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Блок с вкладками -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Вкладка: Мои коворкинги -->
+            <TextView
+                android:id="@+id/tabMyCoworkings"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="Мои коворкинги"
+                android:textSize="16sp"
+                android:background="?attr/selectableItemBackground" />
+
+            <!-- Вкладка: Мероприятия -->
+            <TextView
+                android:id="@+id/tabEvents"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="Мероприятия"
+                android:textSize="16sp"
+                android:background="?attr/selectableItemBackground" />
+        </LinearLayout>
+
+        <!-- Кнопка для добавления коворкингов/мероприятий -->
+        <Button
+            android:id="@+id/btnAddAction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Добавить коворкинг"
+            android:layout_gravity="center_horizontal" />
+
+    </LinearLayout>
+
+    <!-- Список, который прокручивается -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMyCoworkings"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</LinearLayout>

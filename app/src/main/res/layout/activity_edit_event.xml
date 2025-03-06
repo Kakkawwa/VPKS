@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Название мероприятия -->
+        <EditText
+            android:id="@+id/etEventName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Название мероприятия" />
+
+        <!-- Категория мероприятия -->
+        <EditText
+            android:id="@+id/etEventCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Категория мероприятия" />
+
+        <!-- Выбор даты -->
+        <EditText
+            android:id="@+id/etEventDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Дата мероприятия"
+            android:focusable="false" />
+
+        <!-- Выбор времени начала -->
+        <EditText
+            android:id="@+id/etEventStartTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Начало мероприятия"
+            android:focusable="false" />
+
+        <!-- Выбор времени окончания -->
+        <EditText
+            android:id="@+id/etEventEndTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Окончание мероприятия"
+            android:focusable="false" />
+
+        <!-- Описание мероприятия -->
+        <EditText
+            android:id="@+id/etEventDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Описание мероприятия"
+            android:inputType="textMultiLine"
+            android:minLines="3" />
+
+        <!-- Отображение выбранного коворкинга (не редактируемое) -->
+        <TextView
+            android:id="@+id/tvCoworkingName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Коворкинг: "
+            android:textSize="16sp"
+            android:padding="8dp" />
+
+        <!-- Кнопка для сохранения изменений -->
+        <Button
+            android:id="@+id/btnSaveEvent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Сохранить изменения"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

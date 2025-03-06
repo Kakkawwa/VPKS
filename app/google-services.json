@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626155268205",
+    "project_id": "project-db534",
+    "storage_bucket": "project-db534.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626155268205:android:4c69e60b18d3c91743b764",
+        "android_client_info": {
+          "package_name": "com.example.diplom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHv_i_bRXWSJ4AwudQ-VRC-8U6LzaU1JE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
