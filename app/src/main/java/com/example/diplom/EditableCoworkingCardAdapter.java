@@ -58,10 +58,9 @@ public class EditableCoworkingCardAdapter extends RecyclerView.Adapter<EditableC
             holder.imageViewPager.setVisibility(View.GONE);
         }
 
-        // При нажатии на всю карточку открываем страницу деталей
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, CoworkingDetailsActivity.class);
-            intent.putExtra("documentId", model.getDocumentId());
+            intent.putExtra("coworkingId", model.getDocumentId()); // Исправлено здесь!
             intent.putExtra("name", model.getName());
             intent.putExtra("address", model.getAddress());
             intent.putExtra("places", model.getPlaces());
@@ -69,7 +68,6 @@ public class EditableCoworkingCardAdapter extends RecyclerView.Adapter<EditableC
             intent.putExtra("price", model.getPrice());
             intent.putStringArrayListExtra("images", new ArrayList<>(model.getImages()));
             intent.putExtra("creatorId", model.getCreatorId());
-            // Передаём флаг, чтобы скрыть кнопку "Забронировать"
             intent.putExtra("hideBooking", true);
             context.startActivity(intent);
         });

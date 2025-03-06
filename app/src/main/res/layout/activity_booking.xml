@@ -29,7 +29,7 @@
             android:id="@+id/startDateTimeTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Выберите дату"
+            android:text="Выберите дату и время"
             android:background="@drawable/border"
             android:padding="12dp"
             android:gravity="center"
@@ -46,7 +46,7 @@
             android:id="@+id/endDateTimeTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Выберите дату"
+            android:text="Выберите дату и время"
             android:background="@drawable/border"
             android:padding="12dp"
             android:gravity="center"
@@ -59,11 +59,14 @@
             android:text="Количество человек:"
             android:textSize="18sp"/>
 
-        <NumberPicker
-            android:id="@+id/peoplePicker"
-            android:layout_width="wrap_content"
+        <!-- Изменили NumberPicker на EditText -->
+        <EditText
+            android:id="@+id/peopleEditText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+            android:hint="Введите количество человек"
+            android:inputType="number"
+            android:layout_marginTop="8dp"/>
 
         <EditText
             android:id="@+id/commentEditText"

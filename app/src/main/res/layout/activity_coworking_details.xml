@@ -1,3 +1,9 @@
+<com.example.diplom.CustomScrollView android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +13,7 @@
     android:orientation="vertical"
     android:background="@color/white"
     tools:context=".CoworkingDetailsActivity">
+
 
     <!-- Карусель изображений -->
     <androidx.recyclerview.widget.RecyclerView
@@ -31,6 +38,13 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:paddingTop="4dp" />
+
+    <!-- Добавляем карту под адресом -->
+    <com.yandex.mapkit.mapview.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp" />
 
     <TextView
         android:id="@+id/descriptionTextView"
@@ -97,7 +111,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:nestedScrollingEnabled="false" />
 
 
     <!-- Заголовок блока мероприятий (по умолчанию скрыт) -->
@@ -121,3 +136,4 @@
         android:padding="10dp" />
 
 </LinearLayout>
+</com.example.diplom.CustomScrollView>

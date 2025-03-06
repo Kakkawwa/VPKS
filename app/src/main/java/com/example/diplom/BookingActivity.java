@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -22,8 +21,7 @@ import java.util.Map;
 public class BookingActivity extends AppCompatActivity {
 
     private TextView startDateTimeTextView, endDateTimeTextView, selectedZoneTextView;
-    private NumberPicker peoplePicker;
-    private EditText commentEditText;
+    private EditText peopleEditText, commentEditText;
     private Button confirmButton;
 
     private Calendar startDateTime, endDateTime;
@@ -39,7 +37,7 @@ public class BookingActivity extends AppCompatActivity {
         startDateTimeTextView = findViewById(R.id.startDateTimeTextView);
         endDateTimeTextView = findViewById(R.id.endDateTimeTextView);
         selectedZoneTextView = findViewById(R.id.selectedZoneTextView);
-        peoplePicker = findViewById(R.id.peoplePicker);
+        peopleEditText = findViewById(R.id.peopleEditText);
         commentEditText = findViewById(R.id.commentEditText);
         confirmButton = findViewById(R.id.confirmButton);
 
@@ -71,70 +69,123 @@ public class BookingActivity extends AppCompatActivity {
         // Отобразим выбранную зону и её вместимость
         selectedZoneTextView.setText("Выбрана зона: " + zoneName + " (" + zoneCapacity + " мест)");
 
-        // Настраиваем NumberPicker для количества людей
-        peoplePicker.setMinValue(1);
-        peoplePicker.setMaxValue(zoneCapacity);
-
         // Инициализируем календари
         startDateTime = Calendar.getInstance();
         endDateTime = Calendar.getInstance();
 
-        // Устанавливаем слушатели выбора даты/времени
+        // При нажатии на startDateTimeTextView выбираем дату/время начала бронирования
         startDateTimeTextView.setOnClickListener(v -> showDateTimePicker(true));
+
+        // При выборе даты/времени окончания бронирования, устанавливаем минимальное значение равное startDateTime
         endDateTimeTextView.setOnClickListener(v -> showDateTimePicker(false));
 
         confirmButton.setOnClickListener(v -> saveBookingToFirestore());
     }
 
-    // Метод выбора даты и времени
     private void showDateTimePicker(boolean isStart) {
         Calendar now = Calendar.getInstance();
+        if (!isStart && startDateTime != null) {
+            now = (Calendar) startDateTime.clone();
+        }
+        Calendar finalNow = now;
         DatePickerDialog datePickerDialog = new DatePickerDialog(this,
                 (view, year, month, dayOfMonth) -> {
-                    Calendar selected = Calendar.getInstance();
+                    // Объявляем переменную как final, чтобы её можно было использовать во вложенной лямбде
+                    final Calendar selected = Calendar.getInstance();
                     selected.set(year, month, dayOfMonth);
-                    // Ограничиваем выбор: нельзя выбрать прошедшие даты и даты позже 6 месяцев
-                    Calendar maxDate = Calendar.getInstance();
+
+                    final Calendar minDate = Calendar.getInstance();
+                    final Calendar maxDate = Calendar.getInstance();
                     maxDate.add(Calendar.MONTH, 6);
-                    if(selected.before(now)) {
-                        Toast.makeText(this, "Нельзя выбрать прошедшую дату", Toast.LENGTH_SHORT).show();
+                    // Для окончания бронирования минимальная дата – выбранная дата начала
+                    if (!isStart && startDateTime != null) {
+                        minDate.setTimeInMillis(startDateTime.getTimeInMillis());
+                    }
+                    if (selected.before(minDate)) {
+                        Toast.makeText(this, "Нельзя выбрать прошедшую дату или дату раньше начала бронирования", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if(selected.after(maxDate)) {
+                    if (selected.after(maxDate)) {
                         Toast.makeText(this, "Нельзя выбрать дату более чем через 6 месяцев", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    // После выбора даты – показываем TimePickerDialog
+                    // Показываем TimePickerDialog после выбора даты
                     TimePickerDialog timePickerDialog = new TimePickerDialog(this,
                             (timeView, hourOfDay, minute) -> {
                                 selected.set(Calendar.HOUR_OF_DAY, hourOfDay);
                                 selected.set(Calendar.MINUTE, minute);
-                                String formatted = DateFormat.format("dd/MM/yyyy HH:mm", selected).toString();
-                                if(isStart) {
+                                String formatted = DateFormat.format("dd MMM yyyy HH:mm", selected).toString();
+                                if (isStart) {
                                     startDateTime = selected;
                                     startDateTimeTextView.setText(formatted);
+                                    // Отмечаем, что по умолчанию конец бронирования совпадает с началом
+                                    endDateTimeTextView.setText(formatted);
+                                    endDateTime = (Calendar) startDateTime.clone();
                                 } else {
+                                    if (selected.before(startDateTime)) {
+                                        Toast.makeText(this, "Дата и время окончания не может быть раньше начала", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
                                     endDateTime = selected;
                                     endDateTimeTextView.setText(formatted);
                                 }
                             },
-                            now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), true);
+                            finalNow.get(Calendar.HOUR_OF_DAY), finalNow.get(Calendar.MINUTE), true);
                     timePickerDialog.show();
                 },
                 now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-        // Ограничиваем даты в DatePickerDialog
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+
+        // Устанавливаем минимальную дату для DatePickerDialog
+        if (isStart) {
+            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+        } else if (startDateTime != null) {
+            datePickerDialog.getDatePicker().setMinDate(startDateTime.getTimeInMillis());
+        }
         Calendar sixMonthsLater = Calendar.getInstance();
         sixMonthsLater.add(Calendar.MONTH, 6);
         datePickerDialog.getDatePicker().setMaxDate(sixMonthsLater.getTimeInMillis());
         datePickerDialog.show();
     }
 
+
     private void saveBookingToFirestore() {
-        int people = peoplePicker.getValue();
+        // Получаем количество человек из поля
+        String peopleStr = peopleEditText.getText().toString().trim();
+        if(peopleStr.isEmpty()){
+            Toast.makeText(this, "Введите количество человек", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int people;
+        try {
+            people = Integer.parseInt(peopleStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Неверное число", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (people > zoneCapacity) {
-            Toast.makeText(this, "Недостаточно мест", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Недостаточно мест в зоне", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(zoneCapacity <= 0){
+            Toast.makeText(this, "Нет свободных мест в зоне", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(startDateTimeTextView.getText().toString().equals("Выберите дату и время") ||
+                endDateTimeTextView.getText().toString().equals("Выберите дату и время")) {
+            Toast.makeText(this, "Выберите дату и время начала и окончания бронирования", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(!endDateTime.after(startDateTime)) {
+            Toast.makeText(this, "Дата окончания должна быть позже даты начала", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Проверяем, что бронирование минимум на 1 час
+        long diff = endDateTime.getTimeInMillis() - startDateTime.getTimeInMillis();
+        if(diff < 60 * 60 * 1000) { // 1 час = 3600000 миллисекунд
+            Toast.makeText(this, "Бронирование должно быть минимум на 1 час", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -156,20 +207,19 @@ public class BookingActivity extends AppCompatActivity {
         );
     }
 
+
+    // Метод обновления количества мест (как в предыдущем примере, обновляем массив зон в документе коворкинга)
     private void updateZoneCapacity(int change) {
-        // change отрицательное, если бронирование – вычитаем места, и положительное – при отмене бронирования
         FirebaseFirestore.getInstance()
                 .collection("coworking_spaces")
                 .document(coworkingId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if(documentSnapshot.exists()){
-                        // Получаем массив зон
                         List<Map<String, Object>> zones = (List<Map<String, Object>>) documentSnapshot.get("zones");
                         if(zones != null){
                             for (Map<String, Object> zoneMap : zones) {
                                 if(zoneMap.get("name").toString().equals(zoneName)){
-                                    // Получаем текущее количество мест
                                     int currentCapacity = 0;
                                     try {
                                         currentCapacity = Integer.parseInt(zoneMap.get("places").toString());
@@ -181,7 +231,6 @@ public class BookingActivity extends AppCompatActivity {
                                     zoneMap.put("places", newCapacity);
                                 }
                             }
-                            // Обновляем документ коворкинга с новым массивом зон
                             FirebaseFirestore.getInstance()
                                     .collection("coworking_spaces")
                                     .document(coworkingId)
@@ -209,5 +258,4 @@ public class BookingActivity extends AppCompatActivity {
                         Toast.makeText(BookingActivity.this, "Ошибка получения данных: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                 );
     }
-
 }

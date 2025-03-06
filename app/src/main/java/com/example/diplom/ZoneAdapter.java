@@ -1,15 +1,16 @@
 package com.example.diplom;
 
+import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import androidx.viewpager2.widget.ViewPager2;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,24 +47,43 @@ public class ZoneAdapter extends RecyclerView.Adapter<ZoneAdapter.ViewHolder> {
         String priceType = zone.get("priceType").toString();
         holder.zonePrice.setText(String.format("%s ₽/%s", price, priceType));
 
-        // Обработка клика по кнопке бронирования
-        holder.btnBook.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), BookingActivity.class);
-            intent.putExtra("coworkingId", coworkingId);
-            intent.putExtra("coworkingName", coworkingName);
-            intent.putExtra("zoneName", zone.get("name").toString());
-            intent.putExtra("price", zone.get("price").toString());
-            intent.putExtra("priceType", zone.get("priceType").toString());
-            // Передаем вместимость зоны (количество мест)
-            intent.putExtra("zoneCapacity", zone.get("places").toString());
-            v.getContext().startActivity(intent);
-        });
+        // Проверяем, сколько доступных мест в зоне
+        int available = 0;
+        try {
+            available = Integer.parseInt(zone.get("places").toString());
+        } catch (NumberFormatException e) {
+            available = 0;
+        }
 
+        if (available == 0) {
+            holder.btnBook.setText("Нет доступных мест");
+            holder.btnBook.setEnabled(false);
+        } else {
+            holder.btnBook.setText("Забронировать");
+            holder.btnBook.setEnabled(true);
+            holder.btnBook.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), BookingActivity.class);
+                intent.putExtra("coworkingId", coworkingId);
+                intent.putExtra("coworkingName", coworkingName);
+                intent.putExtra("zoneName", zone.get("name").toString());
+                intent.putExtra("price", zone.get("price").toString());
+                intent.putExtra("priceType", zone.get("priceType").toString());
+                // Передаем вместимость зоны (количество мест)
+                intent.putExtra("zoneCapacity", zone.get("places").toString());
+                v.getContext().startActivity(intent);
+            });
+        }
     }
 
     @Override
     public int getItemCount() {
         return zones.size();
+    }
+
+    // Метод для обновления списка
+    public void updateList(List<Map<String, Object>> newList) {
+        zones = new ArrayList<>(newList);
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
